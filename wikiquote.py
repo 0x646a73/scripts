@@ -6,21 +6,25 @@
 
 import random
 import requests
+import textwrap
 
 import bs4
 
 # User Variables
 # max_length: int - max number of characters to display from quote
+# output_width: int - number of characters per line of output
 # pages: nested list of strings - [Wikiquote page slug, author display name]
 # enable_conky_color: bool - color the author's name via conky color syntax
+# NOTE: conky colors not working; color syntax is output literally by conky
 # conky_color: RRGGBB - hex color code (omitting #) for author display name
 max_length = 512
+output_width = 79
 pages = [
             ["Alex_Jones", "Alex Jones"],
             ["Bobby_Fischer", "Bobby Fischer"],
             ["L._Ron_Hubbard", "L. Ron Hubbard"]
         ]
-enable_conky_color = True
+enable_conky_color = False
 conky_color = "AA2222"
 
 # Functions
@@ -58,14 +62,15 @@ def get_quote(soup):
             quotes.append(quote)
     quote = quotes[random.randrange(len(quotes))]
     quote.strip()
-    quote.rstrip()
     if len(quote) > max_length:
-        quote = quote[:max_length] + "..."
+        quote = textwrap.shorten(quote,
+                    width=max_length, placeholder="...")
+    quote = textwrap.fill(quote, width=output_width)
     return quote
 
 def get_author(random_author):
     """ Gets name of quote author.
-    Adds conky color coding if enabled.
+    Aligns right, adds conky color coding if enabled (not working).
     """
     author = "-- "
     if enable_conky_color:
@@ -73,6 +78,7 @@ def get_author(random_author):
     author += pages[random_author][1]
     if enable_conky_color:
         author += "${color}"
+    author = author.rjust(output_width)
     return author
 
 def main():
