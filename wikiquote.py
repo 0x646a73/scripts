@@ -2,6 +2,7 @@
 #
 # Outputs random quote from list of Wikiquote pages
 #
+# Requires bs4 (BeautifulSoup) to parse Wikiquote website.
 
 import random
 import requests
@@ -63,6 +64,9 @@ def get_quote(soup):
     return quote
 
 def get_author(random_author):
+    """ Gets name of quote author.
+    Adds conky color coding if enabled.
+    """
     author = "-- "
     if enable_conky_color:
         author += "${color " + conky_color + "}"
@@ -72,6 +76,9 @@ def get_author(random_author):
     return author
 
 def main():
+    """ Main function.
+    Prepares variables, calls functions, outputs results.
+    """
     base = "https://en.wikiquote.org/wiki/"
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) " +
