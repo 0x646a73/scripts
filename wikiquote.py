@@ -1,8 +1,60 @@
 #!/usr/bin/env python
 #
-# Outputs random quote from list of Wikiquote pages
+# Description:
+#   Outputs random quote from list of Wikiquote pages.
 #
-# Requires bs4 (BeautifulSoup) to parse Wikiquote website.
+# Requirements:
+#   bs4 (BeautifulSoup) to parse Wikiquote website.
+#
+# Configuration:
+#   max_length (int)
+#       Max number of characters to display from a quote.
+#
+#   output_width (int)
+#       Wrap quote at nth character (multi-line output).
+#
+#   pages (nested list of strings)
+#       List of Wikiquote pages to scrape quotes from.
+#       Inner lists having two strings: [Wikiquote page slug, author name].
+#       e.g. [
+#               ["Leo_Tolstoy", "Tolstoy"],
+#               ["Robert_Anton_Wilson", "RAW"]
+#            ]
+#
+# How It Works:
+#   BeautifulSoup (BS) does the heavy lifting. Picks a random author from the
+#   pages variable, builds a Wikiquote URL from it, and requests the page
+#   contents from that Wikiquote URL. Parses that Wikiquote page content for
+#   quotes, adds them all to a list, and then selects one at random. Finally,
+#   outputs that quote and its author's name.
+#
+#   Identifying quotes from the Wikiquote page content:
+#       Wikiquote doesn't have a standardized page structure. Based on test
+#       data, the author's quotes appear after the second <h2> element. They
+#       are contained within <ul> list items, and each quote's source is also
+#       contained within that list, but as it's own <ul> list. The script
+#       identifies the second <h2> element to determine where the quotes start
+#       and then iterates through each <ul> list where the quotes appear. If
+#       there's a nested source/attribution <ul> list, it's first stripped out
+#       and the parent <ul> list's text is stored in the script's quote list.
+#
+#       Example page source:
+#           <h2>Quotes</h2>                 <-- 2nd occurance of h2 element
+#           <ul>
+#               <li>"Quote."</li>           <-- Quote we care about
+#               <ul>
+#                   <li>Quote source</li>   <-- Attribution to ignore
+#               </ul>
+#           </ul>
+#           <ul>
+#               <li>"Quote."</li>           <-- Another quote we care about
+#               <ul>
+#                   <li>Quote source</li>   <-- Attribution to ignore
+#               </ul>
+#           </ul>
+#           <h2>Quotes about [Author Name]</h2>
+#           [etc.]
+#
 
 import random
 import requests
@@ -10,13 +62,7 @@ import textwrap
 
 import bs4
 
-# User Variables
-# max_length: int - max number of characters to display from quote
-# output_width: int - number of characters per line of output
-# pages: nested list of strings - [Wikiquote page slug, author display name]
-# enable_conky_color: bool - color the author's name via conky color syntax
-# NOTE: conky colors not working; color syntax is output literally by conky
-# conky_color: RRGGBB - hex color code (omitting #) for author display name
+# Configuration
 max_length = 512
 output_width = 79
 pages = [
@@ -24,29 +70,24 @@ pages = [
             ["Bobby_Fischer", "Bobby Fischer"],
             ["L._Ron_Hubbard", "L. Ron Hubbard"]
         ]
-enable_conky_color = False
-conky_color = "AA2222"
+
+# Constants
+base = "https://en.wikiquote.org/wiki/"
+headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+            "AppleWebKit/537.36 (KHTML, like Gecko) " +
+            "Chrome/114.0.0.0 Safari/537.36"}
+random_author = random.randrange(len(pages))
+url = base + pages[random_author][0]
 
 # Functions
 def get_page(url, headers):
-    """ Get Wikiquote page content.
-        Uses python requests to query page content and return "soup" to parse
-    """
+    """ Return Wikiquote page content """
     r = requests.get(url=url, headers=headers)
     soup = bs4.BeautifulSoup(r.content, "html.parser")
     return soup
 
 def get_quote(soup):
-    """ Get random quote from Wikiquote page content.
-        Quotes on Wikiquote appear after the second <h2> element on the
-        page. Iterates through the siblings of that <h2> element and adds
-        them to a quote list until reaching the next <h2> element
-        (which is typically "Quotes about [Author]" or "External links",
-        which we don't want). Adds the first <ul><li> item to the quote
-        list (ignoring the quote's source in a subsequent <li>) and
-        finally returns a random quote from that quote list.
-
-    """
+    """ Return random quote from input Wikiquote page content. """
     quotes = []
     h2 = soup.find_all("h2")[1]
     for sibling in h2.find_next_siblings():
@@ -69,29 +110,13 @@ def get_quote(soup):
     return quote
 
 def get_author(random_author):
-    """ Gets name of quote author.
-    Aligns right, adds conky color coding if enabled (not working).
-    """
-    author = "-- "
-    if enable_conky_color:
-        author += "${color " + conky_color + "}"
-    author += pages[random_author][1]
-    if enable_conky_color:
-        author += "${color}"
+    """ Return name of quote author, aligned right """
+    author = "-- " + pages[random_author][1]
     author = author.rjust(output_width)
     return author
 
 def main():
-    """ Main function.
-    Prepares variables, calls functions, outputs results.
-    """
-    base = "https://en.wikiquote.org/wiki/"
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
-                "AppleWebKit/537.36 (KHTML, like Gecko) " +
-                "Chrome/114.0.0.0 Safari/537.36"}
-    random_author = random.randrange(len(pages))
-    url = base + pages[random_author][0]
-
+    """ Prepare variables, call functions, output results. """
     page = get_page(url, headers)
     quote = get_quote(page)
     author = get_author(random_author)
