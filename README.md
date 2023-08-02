@@ -11,3 +11,4 @@ Python & Bash scripts.
 ## Bash
 * **mirror-site.sh** - Mirrors website using wget.
 * **mullvad-status.sh** - Outputs status of Mullvad VPN.
+* **multi-line.sh** - Outputs random sequential line(s) from text file.
