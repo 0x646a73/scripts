@@ -35,6 +35,6 @@ num_items = min(args.max, len(xml.entries))
 file = os.path.expanduser(args.outfile)
 
 with open(file, mode="w") as f:
-    for i in range(1, num_items):
+    for i in range(1, num_items + 1):
         f.write(xml.entries[i].title + "\n")
 
