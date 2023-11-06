@@ -6,6 +6,7 @@ Python & Bash scripts.
 |:----------------|:----|:---------------------------------------------
 | ddate           | py  | converts gregorian date to discordian
 | fweet           | py  | scrapes 'finnegans wake' from fweet.org
+| iapd            | py  | scrapes data from IAPD XML
 | mirror\-site    | sh  | alias for mirroring site w/ wget
 | mullvad\-status | py  | prints vpn status
 | mullvad\-status | sh  | prints vpn status
