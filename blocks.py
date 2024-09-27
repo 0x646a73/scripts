@@ -3,7 +3,7 @@
 # User input to 3x3 block ascii
 
 # 1 2 3 4 5 6 7
-# 🬭 🬋 🬂 🬎 🬹 🬰 🮋
+# 🬭 🬋 🬂 🬎 🬹 🬰 █
 
 one='🬭'
 two='🬋'
@@ -11,7 +11,7 @@ thr='🬂'
 fou='🬎'
 fiv='🬹'
 six='🬰'
-sev='🮋'
+sev='█'
 
 a=$fiv$fou$fiv
 b=$sev$sev$fiv
